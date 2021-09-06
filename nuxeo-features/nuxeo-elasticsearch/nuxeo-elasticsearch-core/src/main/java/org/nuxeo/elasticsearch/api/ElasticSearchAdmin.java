@@ -122,6 +122,14 @@ public interface ElasticSearchAdmin {
     String getWriteIndexName(String searchIndexName);
 
     /**
+     * Returns the secondary write index used during re-indexing with aliases.
+     *
+     * @return an index name or null if there is no re-indexing in progress.
+     * @since 2021.9
+     */
+    String getSecondaryWriteIndexName(String searchIndexName);
+
+    /**
      * Make sure that the search alias point to the same index as the write alias.
      *
      * @since 9.3

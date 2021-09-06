@@ -426,6 +426,10 @@ public class ElasticSearchIndexingImpl implements ElasticSearchIndexing {
         return esa.getWriteIndexName(esa.getIndexNameForRepository(repository));
     }
 
+    protected String getSecondaryWriteIndexForRepository(String repository) {
+        return esa.getSecondaryWriteIndexName(esa.getIndexNameForRepository(repository));
+    }
+
     @Override
     public BytesReference source(DocumentModel doc) throws IOException {
         BytesStreamOutput out = new BytesStreamOutput();

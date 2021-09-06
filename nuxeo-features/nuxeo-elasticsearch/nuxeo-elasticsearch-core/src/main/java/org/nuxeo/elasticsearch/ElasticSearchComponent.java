@@ -301,6 +301,11 @@ public class ElasticSearchComponent extends DefaultComponent
     }
 
     @Override
+    public String getSecondaryWriteIndexName(String searchIndexName) {
+        return esa.getSecondaryWriteIndexName(searchIndexName);
+    }
+
+    @Override
     public void syncSearchAndWriteAlias(String searchIndexName) {
         esa.syncSearchAndWriteAlias(searchIndexName);
     }
