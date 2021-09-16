@@ -217,7 +217,13 @@ public class ElasticSearchAdminImpl implements ElasticSearchAdmin {
         if (log.isDebugEnabled()) {
             log.debug("Refreshing index associated with repo: " + repositoryName);
         }
-        getClient().refresh(getWriteIndexName(getIndexNameForRepository(repositoryName)));
+        String searchIndex = getIndexNameForRepository(repositoryName);
+        getClient().refresh(getWriteIndexName(searchIndex));
+        String secondaryWriteIndex = getSecondaryWriteIndexName(searchIndex);
+        if (secondaryWriteIndex != null) {
+            log.debug("Refreshing secondary write index " + secondaryWriteIndex);
+            getClient().refresh(secondaryWriteIndex);
+        }
         if (log.isDebugEnabled()) {
             log.debug("Refreshing index done");
         }
@@ -404,7 +410,7 @@ public class ElasticSearchAdminImpl implements ElasticSearchAdmin {
         getClient().updateAlias(writeAlias, nextWriteIndex);
         if (writeIndex != null) {
             // we have 2 write indexes until alias are in sync
-            log.warn(String.format("Managed index aliases, write: %s -> %s with secondary write index: %s",
+            log.warn(String.format("Managed index aliases, new write index created : %s -> %s with secondary write index: %s",
                     writeAlias, nextWriteIndex, writeIndex));
             secondaryWriteIndexNames.put(conf.getName(), writeIndex);
             // notify other nodes
@@ -453,8 +459,9 @@ public class ElasticSearchAdminImpl implements ElasticSearchAdmin {
         String writeAlias = conf.writeIndexOrAlias();
         String writeIndex = getClient().getFirstIndexForAlias(writeAlias);
         if (!writeIndex.equals(searchIndex)) {
-            log.warn(String.format("Updating search alias %s->%s (old index %s can be deleted)", searchAlias, writeIndex,
-                    searchIndex));
+            log.warn(String.format(
+                    "Managed index aliases, updating search alias %s -> %s (old index: %s, can be deleted)",
+                    searchAlias, writeIndex, searchIndex));
             getClient().updateAlias(searchAlias, writeIndex);
             searchIndex = writeIndex;
             secondaryWriteIndexNames.remove(conf.getName());
@@ -616,13 +623,17 @@ public class ElasticSearchAdminImpl implements ElasticSearchAdmin {
         }
 
         @Override public void sendMessage(ReindexingMessage message) {
-            log.warn("sendMessage " + message);
+            if (log.isDebugEnabled()) {
+                log.debug("sendMessage " + message);
+            }
             super.sendMessage(message);
         }
 
         @Override
         public void receivedMessage(ReindexingMessage message) {
-            log.warn("Receiving message " + message);
+            if (log.isDebugEnabled()) {
+                log.debug("Receiving message " + message);
+            }
             switch (message.state) {
             case START:
                 secondaryWriteIndexNames.put(message.indexName, message.secondWriteIndexName);
