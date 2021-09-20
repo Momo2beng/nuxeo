@@ -138,7 +138,7 @@ public class TestBulkIndex {
         assertEquals(20, totalDocs);
 
         // simulate a bulk reindex by creating a new write index
-        esa.dropAndInitRepositoryIndex(session.getRepositoryName(), false);
+        esa.initRepositoryIndexWithAliases(session.getRepositoryName());
         // aliases are pointing to different indexes
         searchIndex = esa.getClient().getFirstIndexForAlias(searchAlias);
         writeIndex = esa.getClient().getFirstIndexForAlias(writeAlias);

@@ -77,7 +77,6 @@ public class ESRestClientFactory implements ESClientFactory {
 
     /** @since 10.3 */
     public static final String TRUST_STORE_TYPE_OPT = "trustStoreType";
-
     /** @since 10.3 */
     public static final String KEY_STORE_PATH_OPT = "keyStorePath";
 

@@ -271,6 +271,11 @@ public class ElasticSearchComponent extends DefaultComponent
     }
 
     @Override
+    public void initRepositoryIndexWithAliases(String repositoryName) {
+        esa.initRepositoryIndexWithAliases(repositoryName);
+    }
+
+    @Override
     public List<String> getRepositoryNames() {
         return esa.getRepositoryNames();
     }

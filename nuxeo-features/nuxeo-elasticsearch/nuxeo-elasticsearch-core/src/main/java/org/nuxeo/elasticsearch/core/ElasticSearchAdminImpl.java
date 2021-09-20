@@ -75,6 +75,8 @@ public class ElasticSearchAdminImpl implements ElasticSearchAdmin {
 
     protected final Map<String, String> secondaryWriteIndexNames = new HashMap<>();
 
+    protected boolean disableSecondaryWriteIndex = true;
+
     protected final ReindexingPubSub reindexingPubSub;
 
     public static final String REINDEXING_PUBSUB_TOPIC = "reindexing";
@@ -367,6 +369,12 @@ public class ElasticSearchAdminImpl implements ElasticSearchAdmin {
     }
 
     @Override
+    public void initRepositoryIndexWithAliases(String repositoryName) {
+        disableSecondaryWriteIndex = false;
+        dropAndInitRepositoryIndex(repositoryName, false);
+    }
+
+    @Override
     public List<String> getRepositoryNames() {
         return Collections.unmodifiableList(new ArrayList<>(indexNames.keySet()));
     }
@@ -408,7 +416,7 @@ public class ElasticSearchAdminImpl implements ElasticSearchAdmin {
         }
         initIndex(nextWriteIndex, conf, false);
         getClient().updateAlias(writeAlias, nextWriteIndex);
-        if (writeIndex != null) {
+        if (!disableSecondaryWriteIndex && writeIndex != null) {
             // we have 2 write indexes until alias are in sync
             log.warn(String.format("Managed index aliases, new write index created : %s -> %s with secondary write index: %s",
                     writeAlias, nextWriteIndex, writeIndex));
@@ -454,6 +462,7 @@ public class ElasticSearchAdminImpl implements ElasticSearchAdmin {
         if (!conf.manageAlias()) {
             return;
         }
+        disableSecondaryWriteIndex = true;
         String searchAlias = conf.getName();
         String searchIndex = getClient().getFirstIndexForAlias(searchAlias);
         String writeAlias = conf.writeIndexOrAlias();
