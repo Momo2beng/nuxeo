@@ -22,15 +22,12 @@ import org.nuxeo.common.xmap.XMap;
 import org.nuxeo.launcher.config.ConfigurationException;
 import org.nuxeo.launcher.config.ConfigurationGenerator;
 import org.nuxeo.launcher.config.backingservices.BackingChecker;
-
-import org.nuxeo.runtime.kafka.KafkaConfigDescriptor;
 import redis.clients.jedis.Jedis;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 /**
  * @since
@@ -43,7 +40,7 @@ public class RedisChecker implements BackingChecker {
 
     @Override
     public boolean accepts(ConfigurationGenerator cg) {
-        return cg.getIncludedTemplates().contains(TEMPLATE_NAME);
+        return cg.getTemplateList().contains(TEMPLATE_NAME);
     }
 
     @Override
@@ -53,9 +50,9 @@ public class RedisChecker implements BackingChecker {
             RedisExecutor executor = config.newExecutor();
             String pong = executor.execute(Jedis::ping);
             if (!"PONG".equals(pong)) {
-                throw new RuntimeException("Unable to ping Redis, received " + pong);
+                throw new RuntimeException("Unable to ping Redis, received " + pong); // NOSONAR
             }
-        } catch (RuntimeException e) { // NOSONAR
+        } catch (RuntimeException e) {
             throw new ConfigurationException("Unable to reach Redis on prefix: " + config.prefix, e);
         }
     }
